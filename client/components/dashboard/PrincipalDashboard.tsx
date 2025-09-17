@@ -1229,8 +1229,35 @@ export default function PrincipalDashboard() {
               </select>
               <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
-          </div>
         </div>
+        <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-xs text-muted-foreground">Departments</p>
+              <p className="text-2xl font-semibold">{departments.length}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-xs text-muted-foreground">Total HODs</p>
+              <p className="text-2xl font-semibold">
+                {departments.reduce((s, d) => s + d.hods.length, 0)}
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-xs text-muted-foreground">Faculty</p>
+              <p className="text-2xl font-semibold">
+                {departments.reduce(
+                  (s, d) => s + d.hods.reduce((x, h) => x + h.faculties.length, 0),
+                  0,
+                )}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
       </div>
 
       <div className="mt-3">
@@ -1262,35 +1289,6 @@ export default function PrincipalDashboard() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">Departments</p>
-            <p className="text-2xl font-semibold">{departments.length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">Total HODs</p>
-            <p className="text-2xl font-semibold">
-              {departments.reduce((s, d) => s + d.hods.length, 0)}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">Faculty</p>
-            <p className="text-2xl font-semibold">
-              {departments.reduce(
-                (s, d) =>
-                  s + d.hods.reduce((x, h) => x + h.faculties.length, 0),
-                0,
-              )}
-            </p>
           </CardContent>
         </Card>
       </div>
