@@ -1208,28 +1208,6 @@ export default function PrincipalDashboard() {
             <p className="text-sm text-muted-foreground">
               Department grid • Expand into HOD → Faculty → Attendance
             </p>
-            <div className="mt-2 flex flex-wrap items-center gap-3 text-xs sm:text-sm">
-              <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-muted/60">
-                <span className="text-muted-foreground">Departments</span>
-                <span className="font-semibold">{departments.length}</span>
-              </span>
-              <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-muted/60">
-                <span className="text-muted-foreground">Total HODs</span>
-                <span className="font-semibold">
-                  {departments.reduce((s, d) => s + d.hods.length, 0)}
-                </span>
-              </span>
-              <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-muted/60">
-                <span className="text-muted-foreground">Faculty</span>
-                <span className="font-semibold">
-                  {departments.reduce(
-                    (s, d) =>
-                      s + d.hods.reduce((x, h) => x + h.faculties.length, 0),
-                    0,
-                  )}
-                </span>
-              </span>
-            </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="relative">
@@ -1252,38 +1230,6 @@ export default function PrincipalDashboard() {
               <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
           </div>
-        </div>
-        <div className="mt-3">
-          <Card>
-            <CardContent className="p-4">
-              <p className="text-xs text-muted-foreground mb-2">
-                All Departments
-              </p>
-              <div className="h-48">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={departments.map((d) => ({
-                      code: d.code,
-                      faculty: d.hods.reduce(
-                        (s, h) => s + h.faculties.length,
-                        0,
-                      ),
-                      hods: d.hods.length,
-                    }))}
-                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="code" />
-                    <YAxis allowDecimals={false} />
-                    <RTooltip />
-                    <Legend />
-                    <Bar dataKey="faculty" name="Faculty" fill="#ef4444" />
-                    <Bar dataKey="hods" name="HODs" fill="#fecaca" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
 
