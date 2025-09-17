@@ -1203,6 +1203,50 @@ export default function PrincipalDashboard() {
     })();
   }, []);
 
+  // Derived analytics for charts
+  const deptFacultyData = useMemo(() => {
+    return departments.map((d) => ({
+      name: d.code,
+      faculty: d.hods.reduce((acc, h) => acc + h.faculties.length, 0),
+    }));
+  }, [departments]);
+
+  const attendanceByDept = useMemo(() => {
+    return departments.map((d) => {
+      let present = 0,
+        absent = 0,
+        leave = 0;
+      for (const h of d.hods) {
+        for (const f of h.faculties) {
+          const last = f.attendance[f.attendance.length - 1];
+          if (!last) continue;
+          if (last.status === "Present") present++;
+          else if (last.status === "Absent") absent++;
+          else if (last.status === "On Leave") leave++;
+        }
+      }
+      return { name: d.code, present, absent, leave };
+    });
+  }, [departments]);
+
+  const dailyPresentTrend = useMemo(() => {
+    const countByDate = new Map<string, number>();
+    for (const d of departments) {
+      for (const h of d.hods) {
+        for (const f of h.faculties) {
+          for (const r of f.attendance) {
+            if (r.status === "Present") {
+              countByDate.set(r.date, (countByDate.get(r.date) ?? 0) + 1);
+            }
+          }
+        }
+      }
+    }
+    return Array.from(countByDate.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([date, value]) => ({ date, value }));
+  }, [departments]);
+
   return (
     <div className="space-y-8">
       <div className="sticky top-14 z-30 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2">
@@ -1262,6 +1306,63 @@ export default function PrincipalDashboard() {
                 0,
               )}
             </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Analytics charts */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <Card className="xl:col-span-1">
+          <CardContent className="p-4">
+            <SectionHeader
+              icon={Users}
+              title="Faculty by Department"
+              subtitle="Count of faculty members per department"
+            />
+            <ChartContainer
+              config={{
+                faculty: { label: "Faculty", color: "#ef4444" },
+              }}
+              className="h-64"
+            >
+              <BarChart data={deptFacultyData} margin={{ left: -20, right: 10 }}>
+                <CartesianGrid vertical={false} />
+                <XAxis dataKey="name" tickLine={false} axisLine={false} />
+                <YAxis tickLine={false} axisLine={false} width={30} />
+                <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
+                <Bar dataKey="faculty" fill="var(--color-faculty)" radius={4} />
+                <ChartLegend content={<ChartLegendContent />} />
+              </BarChart>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+
+        <Card className="xl:col-span-2">
+          <CardContent className="p-4">
+            <SectionHeader
+              icon={CalendarDays}
+              title="Today’s Attendance by Department"
+              subtitle="Present / Absent / On Leave"
+            />
+            <ChartContainer
+              config={{
+                present: { label: "Present", color: "#10b981" },
+                absent: { label: "Absent", color: "#ef4444" },
+                leave: { label: "On Leave", color: "#f59e0b" },
+              }}
+              className="h-64"
+            >
+              <BarChart data={attendanceByDept} stackOffset="none" margin={{ left: -20, right: 10 }}>
+                <CartesianGrid vertical={false} />
+                <XAxis dataKey="name" tickLine={false} axisLine={false} />
+                <YAxis tickLine={false} axisLine={false} width={30} />
+                <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
+                <Bar dataKey="present" stackId="a" fill="var(--color-present)" radius={[4,4,0,0]} />
+                <Bar dataKey="absent" stackId="a" fill="var(--color-absent)" radius={[4,4,0,0]} />
+                <Bar dataKey="leave" stackId="a" fill="var(--color-leave)" radius={[4,4,0,0]} />
+                <ChartLegend content={<ChartLegendContent />} />
+              </BarChart>
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>
