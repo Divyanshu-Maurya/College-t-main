@@ -7,25 +7,10 @@ import {
   CalendarDays,
   Check,
   X,
-  ChevronDown,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-} from "recharts";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
-} from "@/components/ui/chart";
 
 // Data types
 export interface AttendanceRecord {
@@ -1076,6 +1061,18 @@ export default function PrincipalDashboard() {
     return found ? [found] : departments;
   }, [departments, selectedDeptId]);
 
+  const cseDept = useMemo(() => {
+    const d = departments.find((x) => x.code === "CSE");
+    if (!d) return null;
+    return {
+      ...d,
+      hods: d.hods.map((h, i) => ({
+        ...h,
+        name: i === 0 ? "Reyansh Patel" : h.name,
+      })),
+    };
+  }, [departments]);
+
   const [punchRows, setPunchRows] = useState<PunchRow[]>([]);
   const rowsByName = useMemo(() => {
     const m = new Map<string, PunchRow[]>();
@@ -1250,34 +1247,9 @@ export default function PrincipalDashboard() {
   return (
     <div className="space-y-8">
       <div className="sticky top-14 z-30 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-2xl font-semibold tracking-tight">Overview</h2>
-            <p className="text-sm text-muted-foreground">
-              Department grid • Expand into HOD → Faculty → Attendance
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <label htmlFor="deptFilter" className="sr-only">
-                Filter
-              </label>
-              <select
-                id="deptFilter"
-                value={selectedDeptId}
-                onChange={(e) => setSelectedDeptId(e.target.value)}
-                className="appearance-none text-sm pr-9 pl-3 py-2 rounded-md border bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-              >
-                <option value="">All Departments</option>
-                {departments.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.code} — {d.name}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            </div>
-          </div>
+        <div className="flex flex-col gap-1">
+          <h2 className="text-2xl font-semibold tracking-tight">HOD Dashboard</h2>
+          <p className="text-sm text-muted-foreground">CSE — Computer Science & Engineering</p>
         </div>
       </div>
 
@@ -1310,83 +1282,26 @@ export default function PrincipalDashboard() {
         </Card>
       </div>
 
-      {/* Analytics charts */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <Card className="xl:col-span-1">
-          <CardContent className="p-4">
-            <SectionHeader
-              icon={Users}
-              title="Faculty by Department"
-              subtitle="Count of faculty members per department"
-            />
-            <ChartContainer
-              config={{
-                faculty: { label: "Faculty", color: "#ef4444" },
-              }}
-              className="h-64"
-            >
-              <BarChart data={deptFacultyData} margin={{ left: -20, right: 10 }}>
-                <CartesianGrid vertical={false} />
-                <XAxis dataKey="name" tickLine={false} axisLine={false} />
-                <YAxis tickLine={false} axisLine={false} width={30} />
-                <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
-                <Bar dataKey="faculty" fill="var(--color-faculty)" radius={4} />
-                <ChartLegend content={<ChartLegendContent />} />
-              </BarChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-
-        <Card className="xl:col-span-2">
-          <CardContent className="p-4">
-            <SectionHeader
-              icon={CalendarDays}
-              title="Today’s Attendance by Department"
-              subtitle="Present / Absent / On Leave"
-            />
-            <ChartContainer
-              config={{
-                present: { label: "Present", color: "#10b981" },
-                absent: { label: "Absent", color: "#ef4444" },
-                leave: { label: "On Leave", color: "#f59e0b" },
-              }}
-              className="h-64"
-            >
-              <BarChart data={attendanceByDept} stackOffset="none" margin={{ left: -20, right: 10 }}>
-                <CartesianGrid vertical={false} />
-                <XAxis dataKey="name" tickLine={false} axisLine={false} />
-                <YAxis tickLine={false} axisLine={false} width={30} />
-                <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
-                <Bar dataKey="present" stackId="a" fill="var(--color-present)" radius={[4,4,0,0]} />
-                <Bar dataKey="absent" stackId="a" fill="var(--color-absent)" radius={[4,4,0,0]} />
-                <Bar dataKey="leave" stackId="a" fill="var(--color-leave)" radius={[4,4,0,0]} />
-                <ChartLegend content={<ChartLegendContent />} />
-              </BarChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-      </div>
-
       <div className="flex items-center justify-between">
         <SectionHeader
-          icon={Building2}
-          title="Departments"
-          subtitle="Tap + on a department to view HOD"
+          icon={Users}
+          title="Head of Department"
+          subtitle="Tap + to view faculty and attendance"
         />
       </div>
 
       <div className="grid grid-cols-1 gap-6">
-        {filtered.map((dept) => {
-          const isSelected = selectedDeptId === dept.id;
-          return (
-            <DepartmentCard
-              key={dept.id}
-              dept={dept}
-              selected={isSelected}
-              getRows={getRows}
-            />
-          );
-        })}
+        {cseDept ? (
+          cseDept.hods.slice(0, 1).map((h) => (
+            <HODCard key={h.id} hod={h} getRows={getRows} />
+          ))
+        ) : (
+          <Card>
+            <CardContent className="p-4 text-sm text-muted-foreground">
+              CSE department not found.
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
