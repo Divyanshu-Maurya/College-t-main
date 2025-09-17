@@ -253,7 +253,7 @@ export default function Attendance() {
         });
 
         const onlyHOD = mapped.filter(
-          (m) => m.name && norm(m.name) === "reyan sh patel" || norm(m.name) === "reyan patel" || norm(m.name) === "reyan sh  patel" || norm(m.name) === "reyan shpatel" || norm(m.name) === "reyan sh  patel" || norm(m.name) === "reyan sh" || norm(m.name) === "reyansh patel",
+          (m) => m.name && norm(m.name) === "reyansh patel",
         );
         setPunches(onlyHOD);
       } catch (e) {
