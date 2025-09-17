@@ -1229,8 +1229,8 @@ export default function PrincipalDashboard() {
               </select>
               <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
+          </div>
         </div>
-      </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
