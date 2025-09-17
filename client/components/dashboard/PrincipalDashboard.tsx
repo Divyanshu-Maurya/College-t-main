@@ -1210,7 +1210,7 @@ export default function PrincipalDashboard() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="relative ml-auto">
+            <div className="relative">
               <label htmlFor="deptFilter" className="sr-only">
                 Filter
               </label>
@@ -1218,7 +1218,7 @@ export default function PrincipalDashboard() {
                 id="deptFilter"
                 value={selectedDeptId}
                 onChange={(e) => setSelectedDeptId(e.target.value)}
-                className="appearance-none h-8 w-40 sm:w-44 text-xs pr-7 pl-2.5 py-1.5 rounded-md border bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="appearance-none text-sm pr-9 pl-3 py-2 rounded-md border bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500"
               >
                 <option value="">All Departments</option>
                 {departments.map((d) => (
@@ -1230,72 +1230,34 @@ export default function PrincipalDashboard() {
               <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
         </div>
-        <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
-          <Card className="border-t-4 border-red-200 shadow-brand-sm">
-            <CardContent className="p-5 text-center">
-              <div className="mx-auto mb-2 h-10 w-10 rounded-full bg-red-50 text-red-600 grid place-items-center">
-                <Building2 className="h-5 w-5" />
-              </div>
-              <p className="text-xs text-muted-foreground">Departments</p>
-              <p className="text-3xl font-bold">{departments.length}</p>
-            </CardContent>
-          </Card>
-          <Card className="border-t-4 border-amber-200 shadow-brand-sm">
-            <CardContent className="p-5 text-center">
-              <div className="mx-auto mb-2 h-10 w-10 rounded-full bg-amber-50 text-amber-600 grid place-items-center">
-                <Users className="h-5 w-5" />
-              </div>
-              <p className="text-xs text-muted-foreground">HODs</p>
-              <p className="text-3xl font-bold">
-                {departments.reduce((s, d) => s + d.hods.length, 0)}
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="border-t-4 border-indigo-200 shadow-brand-sm">
-            <CardContent className="p-5 text-center">
-              <div className="mx-auto mb-2 h-10 w-10 rounded-full bg-indigo-50 text-indigo-600 grid place-items-center">
-                <UserRound className="h-5 w-5" />
-              </div>
-              <p className="text-xs text-muted-foreground">Faculty</p>
-              <p className="text-3xl font-bold">
-                {departments.reduce(
-                  (s, d) => s + d.hods.reduce((x, h) => x + h.faculties.length, 0),
-                  0,
-                )}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
       </div>
       </div>
 
-      <div className="mt-3">
-        <Card className="shadow-brand-sm">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <Card>
           <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground mb-2">
-              Faculty & HODs by Department
+            <p className="text-xs text-muted-foreground">Departments</p>
+            <p className="text-2xl font-semibold">{departments.length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-xs text-muted-foreground">Total HODs</p>
+            <p className="text-2xl font-semibold">
+              {departments.reduce((s, d) => s + d.hods.length, 0)}
             </p>
-            <div style={{ height: Math.max(240, departments.length * 28) }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  layout="vertical"
-                  data={departments.map((d) => ({
-                    code: d.code,
-                    faculty: d.hods.reduce((s, h) => s + h.faculties.length, 0),
-                    hods: d.hods.length,
-                  }))}
-                  margin={{ top: 10, right: 20, left: 10, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" allowDecimals={false} />
-                  <YAxis type="category" dataKey="code" width={80} />
-                  <RTooltip />
-                  <Legend />
-                  <Bar dataKey="faculty" name="Faculty" fill="#6366f1" />
-                  <Bar dataKey="hods" name="HODs" fill="#f59e0b" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-xs text-muted-foreground">Faculty</p>
+            <p className="text-2xl font-semibold">
+              {departments.reduce(
+                (s, d) =>
+                  s + d.hods.reduce((x, h) => x + h.faculties.length, 0),
+                0,
+              )}
+            </p>
           </CardContent>
         </Card>
       </div>
