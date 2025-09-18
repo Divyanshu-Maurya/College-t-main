@@ -96,7 +96,7 @@ export default function Attendance() {
     [],
   );
 
-  const [filterDept, setFilterDept] = useState<string>("All");
+  const [filterDept, setFilterDept] = useState<string>("CSE");
   const [search, setSearch] = useState<string>("");
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
@@ -126,7 +126,7 @@ export default function Attendance() {
 
   useEffect(() => {
     const EXCEL_URL =
-      "https://cdn.builder.io/o/assets%2F0d7360767e284db5a397928f0c050cd5%2F361c22ddd0a145e0ad02f5734a898345?alt=media&token=e24a98ae-3bf6-4d40-a37d-e48654f24204&apiKey=0d7360767e284db5a397928f0c050cd5";
+      "https://cdn.builder.io/o/assets%2Fc2eca9bb69a4489eadc6428a9e2e2956%2F32483d4b700b401e8b829638114276db?alt=media&token=f5cea86a-75f4-4856-a4cc-5170be9c7dea&apiKey=c2eca9bb69a4489eadc6428a9e2e2956";
     (async () => {
       try {
         const buf = await fetch(EXCEL_URL).then((r) => {
@@ -252,10 +252,10 @@ export default function Attendance() {
           } as PunchRow;
         });
 
-        const onlyPrincipal = mapped.filter(
-          (m) => m.name && norm(m.name) === "vivaan mehta",
+        const onlyHOD = mapped.filter(
+          (m) => m.name && norm(m.name) === "reyansh patel",
         );
-        setPunches(onlyPrincipal);
+        setPunches(onlyHOD);
       } catch (e) {
         console.error("Failed to load attendance excel", e);
       }
@@ -485,9 +485,9 @@ export default function Attendance() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-semibold tracking-tight">My Attendance</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">My Attendance — HOD: Reyansh Patel (CSE)</h2>
         <p className="text-sm text-muted-foreground">
-          Charts and detailed logs for this month
+          Detailed logs from attached Excel
         </p>
       </div>
 

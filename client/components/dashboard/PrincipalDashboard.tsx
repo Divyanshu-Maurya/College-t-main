@@ -7,21 +7,10 @@ import {
   CalendarDays,
   Check,
   X,
-  ChevronDown,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip as RTooltip,
-  Legend,
-} from "recharts";
 
 // Data types
 export interface AttendanceRecord {
@@ -1072,6 +1061,18 @@ export default function PrincipalDashboard() {
     return found ? [found] : departments;
   }, [departments, selectedDeptId]);
 
+  const cseDept = useMemo(() => {
+    const d = departments.find((x) => x.code === "CSE");
+    if (!d) return null;
+    return {
+      ...d,
+      hods: d.hods.map((h, i) => ({
+        ...h,
+        name: i === 0 ? "Reyansh Patel" : h.name,
+      })),
+    };
+  }, [departments]);
+
   const [punchRows, setPunchRows] = useState<PunchRow[]>([]);
   const rowsByName = useMemo(() => {
     const m = new Map<string, PunchRow[]>();
@@ -1199,37 +1200,56 @@ export default function PrincipalDashboard() {
     })();
   }, []);
 
+  // Derived analytics for charts
+  const deptFacultyData = useMemo(() => {
+    return departments.map((d) => ({
+      name: d.code,
+      faculty: d.hods.reduce((acc, h) => acc + h.faculties.length, 0),
+    }));
+  }, [departments]);
+
+  const attendanceByDept = useMemo(() => {
+    return departments.map((d) => {
+      let present = 0,
+        absent = 0,
+        leave = 0;
+      for (const h of d.hods) {
+        for (const f of h.faculties) {
+          const last = f.attendance[f.attendance.length - 1];
+          if (!last) continue;
+          if (last.status === "Present") present++;
+          else if (last.status === "Absent") absent++;
+          else if (last.status === "On Leave") leave++;
+        }
+      }
+      return { name: d.code, present, absent, leave };
+    });
+  }, [departments]);
+
+  const dailyPresentTrend = useMemo(() => {
+    const countByDate = new Map<string, number>();
+    for (const d of departments) {
+      for (const h of d.hods) {
+        for (const f of h.faculties) {
+          for (const r of f.attendance) {
+            if (r.status === "Present") {
+              countByDate.set(r.date, (countByDate.get(r.date) ?? 0) + 1);
+            }
+          }
+        }
+      }
+    }
+    return Array.from(countByDate.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([date, value]) => ({ date, value }));
+  }, [departments]);
+
   return (
     <div className="space-y-8">
       <div className="sticky top-14 z-30 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-2xl font-semibold tracking-tight">Overview</h2>
-            <p className="text-sm text-muted-foreground">
-              Department grid • Expand into HOD → Faculty → Attendance
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <label htmlFor="deptFilter" className="sr-only">
-                Filter
-              </label>
-              <select
-                id="deptFilter"
-                value={selectedDeptId}
-                onChange={(e) => setSelectedDeptId(e.target.value)}
-                className="appearance-none text-sm pr-9 pl-3 py-2 rounded-md border bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-              >
-                <option value="">All Departments</option>
-                {departments.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.code} — {d.name}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            </div>
-          </div>
+        <div className="flex flex-col gap-1">
+          <h2 className="text-2xl font-semibold tracking-tight">HOD Dashboard</h2>
+          <p className="text-sm text-muted-foreground">CSE — Computer Science & Engineering</p>
         </div>
       </div>
 
@@ -1264,24 +1284,24 @@ export default function PrincipalDashboard() {
 
       <div className="flex items-center justify-between">
         <SectionHeader
-          icon={Building2}
-          title="Departments"
-          subtitle="Tap + on a department to view HOD"
+          icon={Users}
+          title="Head of Department"
+          subtitle="Tap + to view faculty and attendance"
         />
       </div>
 
       <div className="grid grid-cols-1 gap-6">
-        {filtered.map((dept) => {
-          const isSelected = selectedDeptId === dept.id;
-          return (
-            <DepartmentCard
-              key={dept.id}
-              dept={dept}
-              selected={isSelected}
-              getRows={getRows}
-            />
-          );
-        })}
+        {cseDept ? (
+          cseDept.hods.slice(0, 1).map((h) => (
+            <HODCard key={h.id} hod={h} getRows={getRows} />
+          ))
+        ) : (
+          <Card>
+            <CardContent className="p-4 text-sm text-muted-foreground">
+              CSE department not found.
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
